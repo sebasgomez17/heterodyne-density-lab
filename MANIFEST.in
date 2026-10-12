@@ -1,0 +1,12 @@
+include README.md LICENSE version.txt CHANGELOG.md poetry.lock poetry.toml
+include pyproject.toml
+include build_ffi.py setup.py
+recursive-include csrc *.c *.h *.md
+recursive-include config *.py *.md
+recursive-include scripts *.py *.md
+recursive-include guides *.md
+recursive-include documentation *.tex *.md Makefile latexmkrc *.bib
+recursive-include documentation/figures *.pdf *.png *.jpg *.jpeg *.md
+recursive-include tests *.py *.md
+prune documentation/build
+prune output

@@ -1,0 +1,37 @@
+# Local environments, caches, and build products
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+*.so
+*.pyd
+*.dll
+*.dylib
+*.o
+*.obj
+*.lib
+*.exp
+src/heterodyne_density_lab/_core.c
+
+# Generated outputs; keep the folder and instructions
+output/*
+!output/README.md
+
+# TeX build products
+documentation/build/
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# OS/editor files
+.DS_Store
+__MACOSX/
+.vscode/
+.idea/

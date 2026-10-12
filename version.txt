@@ -1,0 +1,12 @@
+Heterodyne Density Lab
+Version: 0.1.0
+Date: 2026-10-12
+Status: repository and documentation scaffold; scientific implementation pending
+Python distribution: heterodyne-density-lab
+Python import: heterodyne_density_lab
+License: MIT
+
+The authoritative package version is project.version in pyproject.toml.
+Keep this summary and CHANGELOG.md consistent with that version.
+This is a new Python/C version series. It does not replace the MATLAB
+repository's 5.0 version or claim a completed numerical translation.

@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=77,<83", "wheel>=0.45,<1", "cffi>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heterodyne-density-lab"
+version = "0.1.0"
+description = "Python/C scaffold for heterodyne interferometer density reconstruction and design studies"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "sebasgomez17"}]
+keywords = ["heterodyne", "interferometry", "plasma", "Abel inversion", "density reconstruction"]
+classifiers = [
+  "Development Status :: 1 - Planning",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: C",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+  "numpy>=2.3.5,<3",
+  "scipy>=1.16.2,<2",
+  "matplotlib>=3.10.8,<4",
+  "cffi>=2.0,<3",
+  "setuptools>=77,<83",
+  "wheel>=0.45,<1",
+]
+
+[project.urls]
+Repository = "https://github.com/sebasgomez17/heterodyne-density-lab"
+Documentation = "https://github.com/sebasgomez17/heterodyne-density-lab/tree/main/documentation"
+Issues = "https://github.com/sebasgomez17/heterodyne-density-lab/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["heterodyne_density_lab*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.poetry]
+package-mode = true
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.4,<10"
+build = ">=1.3,<2"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

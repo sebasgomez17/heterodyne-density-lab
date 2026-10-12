@@ -1,0 +1,345 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setcounter{tocdepth}{2}
+
+% Original author-fillable outline. No scientific content has been translated.
+% Replace each prompt, caption, and bibliography placeholder before publication.
+\newcommand{\authorprompt}[1]{\textit{Author to fill in: #1.}\par}
+\newcommand{\figureslot}[3]{%
+  \begin{figure}[tbp]
+    \centering
+    \IfFileExists{figures/#1.pdf}{%
+      \includegraphics[width=0.88\linewidth,height=0.30\textheight,keepaspectratio]{figures/#1.pdf}%
+    }{%
+      \fbox{\parbox[c][1.05in][c]{0.86\linewidth}{\centering
+        Figure placeholder\\[5pt]\texttt{\detokenize{figures/#1.pdf}}}}%
+    }
+    \caption{#3. Author to supply the figure and final caption.}
+    \label{#2}
+  \end{figure}%
+}
+
+\title{Heterodyne Density Lab\\\large Scientific Model and Software Reference}
+\author{\texttt{sebasgomez17}\\\small Author name to be finalized}
+\date{Version 0.1.0 outline --- October 12, 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\authorprompt{the physical problem, model, algorithms, validation, and software purpose}
+\end{abstract}
+\textbf{Document status:} This is an outline for the author to complete.
+The associated version 0.1.0 repository is a scaffold, not an implemented
+or validated scientific package.
+\tableofcontents
+\listoffigures
+\clearpage
+
+\section{Project scope and scientific objectives}
+\subsection{Intended diagnostic and research questions}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Supported inputs, outputs, and assumptions}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Relationship to the original MATLAB implementation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Software installation and user workflow}
+\subsection{Supported operating systems and architectures}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Python, Poetry, and compiler selection}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Editable configurations and five script entry points}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Output locations and reproducibility records}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Coordinates, units, and plasma profiles}
+\subsection{Coordinate and sign conventions}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Density parameterization and bounded support}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Profile families and training ensembles}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{density_profiles}{fig:density-profiles}{Density profiles and profile parameters}
+
+\section{Forward line integration}
+\subsection{Abel geometry and mathematical definition}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Quadrature substitution and endpoint behavior}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Batching, tolerances, and convergence}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Imaging and detector sampling}
+\subsection{Signed transverse magnification and plane mapping}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Probe and reference beams}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Port clipping and transmitted power}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Finite-area elements and selected-channel layouts}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{imaging_geometry}{fig:geometry}{Object/image geometry, beam, port, and detector elements}
+
+\section{Heterodyne observable}
+\subsection{Optical phase from line-integrated density}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Complex cross-field integration over each element}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Vacuum calibration and principal-phase recovery}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Linearized measurement and approximation diagnostics}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{measurement_chain}{fig:measurement-chain}{Measurement and reconstruction pipeline}
+
+\section{Optical power and detector specifications}
+\subsection{Power splitting and overlap normalization}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Built-in detector models and custom specifications}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Typical and conservative parameter cases}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Detector noise and ideal demodulation}
+\subsection{Carrier current and detector-equivalent noise}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Shot noise and equivalent noise bandwidth}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Ideal I/Q conversion factors}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Monte Carlo quadrature noise}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{High-SNR uncertainty and validity diagnostics}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{detector_noise_budget}{fig:noise-budget}{Detector, quadrature, and phase-noise budget}
+
+\section{Detector operating-range constraints}
+\subsection{Peak-cycle power on physical elements}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Bias-dependent typical linearity data}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Sensitivity criterion and safety factor}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Invalid powers, rejection, and sweep handling}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{detector_linearity}{fig:linearity}{Typical linearity curves and chosen operating criterion}
+
+\section{Pretzler reconstruction}
+\subsection{Basis definitions and normalization}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Finite-area forward matrix}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Rank limiting and conditioning}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{OLS, tempered weighting, and WLS}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Numerically stable solves and evaluation grids}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Symmetry-constrained smoothing}
+\subsection{Even coordinate and duplicate radii}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Penalized cubic B-spline reference algorithm}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Open smoothing-spline alternative and parameter equivalence}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Automatic regularization and optional clipping}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{spline_comparison}{fig:splines}{Pretzler and symmetric spline reconstruction comparison}
+
+\section{Error metrics and uncertainty summaries}
+\subsection{Pointwise and full-radius density errors}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Sampled-range versus full-radius metrics}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Local density-scale-length definition}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Bounded scale-length error and singular cases}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Monte Carlo distributions and confidence summaries}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Global estimator selection}
+\subsection{Shared measurement ensembles across candidates}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Training profiles and aggregation metric}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Joint basis-order and weighting selection}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Fixed-estimator use in physical sweeps}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{global_tuning}{fig:tuning}{Global joint hyperparameter selection}
+
+\section{Design studies}
+\subsection{Common detector layouts and study configuration}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Density-scale-length sweep}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Optical-power tradeoff}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Noise and deterministic-weighting decomposition}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Basis-order diagnostic}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{study_scale_length}{fig:scale-length-study}{Primary density-scale-length study}
+
+\section{Study results and interpretation}
+\subsection{Power admissibility and useful detector power}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Noise contribution interpretation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Rank and conditioning interpretation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Sensitivity to configuration choices}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{study_power_tradeoff}{fig:power-study}{Detector-power tradeoff with operating-range constraints}
+\figureslot{study_noise_contribution}{fig:noise-study}{Fixed-estimator noise and weighting decomposition}
+\figureslot{study_basis_order}{fig:basis-study}{Basis-order error, rank, and conditioning diagnostic}
+
+\section{Python configuration reference}
+\subsection{Configuration schema and validation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Plasma, optical, geometry, and detector fields}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Inversion, spline, noise, and numerical fields}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Study, plotting, and export controls}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\begin{table}[tbp]
+\centering
+\caption{Configuration reference template; populate with the implemented schema.}
+\label{tab:configuration}
+\begin{tabular}{llll}
+\toprule
+Field & SI unit & Default & Validation \\
+\midrule
+\textit{To be filled} & \textit{To be filled} & \textit{To be filled} & \textit{To be filled} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Python API and result schema}
+\subsection{Configuration loading and factories}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Geometry and optical forward model}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Detector and noise calculations}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Inversion and smoothing API}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Metrics, reuse, and study orchestration}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Plotting and export API}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Result containers and measurement table columns}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{C kernels and CFFI interface}
+\subsection{Numerical responsibilities and batching}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Public C header and buffer contracts}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Dtypes, shapes, layout, units, and ownership}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Error returns and invalid inputs}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Out-of-line API module and installation build}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Compiler options and architecture portability}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Reproducibility and performance}
+\subsection{Random streams and common-noise comparisons}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Configuration/version/environment capture}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Memory limits and batching policy}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Benchmark methodology and measured speedups}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{runtime_scaling}{fig:runtime}{Runtime and memory scaling for representative studies}
+
+\section{Validation and convergence}
+\subsection{Reference fixtures from the original repository}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Deterministic numerical equivalence}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Stochastic distributions and tolerances}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Quadrature/grid convergence}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Native platform installation checks}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\figureslot{quadrature_convergence}{fig:convergence}{Numerical convergence and reference agreement}
+
+\section{Model limitations and planned extensions}
+\subsection{Optical propagation and aberrations}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Phase wrapping and absolute fringe tracking}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Laser/mechanical noise and nonideal demodulation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Receiver electronics and saturation}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Typical detector-data uncertainty}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Symmetry and spatial-uniformity assumptions}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Troubleshooting and diagnostic interpretation}
+\subsection{Setup, PATH, compiler, and architecture errors}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Insufficient channels or unique radii}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Ill conditioning and basis reduction}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Low carrier SNR and bandwidth diagnostics}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Linearity violations and unsampled-radius error}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\section{Versioning, licensing, and citation}
+\subsection{Version 0.1.0 scope and implementation status}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Release/compatibility policy}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{MIT license and third-party notices}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\subsection{Scientific and software citation guidance}
+\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+
+\clearpage
+\appendix
+\section{Per-function reference}
+\authorprompt{implemented signatures, units, array shapes, return values, failure modes, and examples for the function groups listed in the migration checklist}
+\subsection{Configuration and study-control helpers}
+\authorprompt{configuration factories, design application, tuning, reuse, and basis sweeps}
+\subsection{Forward-model and detector helpers}
+\authorprompt{profiles, geometry, quadrature, phasors, power, detector specifications, and noise}
+\subsection{Reconstruction, spline, and metric helpers}
+\authorprompt{basis matrices, solvers, smoothing, derivative estimates, and all metrics}
+\subsection{Plotting, style, and export helpers}
+\authorprompt{figure inputs, styles, tables, paths, formats, and export settings}
+
+\section{Native interface reference}
+\authorprompt{each C function and CFFI declaration, including lengths, strides, ownership, precision, and return codes}
+
+\section{Validation fixtures and platform record}
+\authorprompt{reference configurations, tolerances, expected outputs, tested machines, compiler versions, and known differences}
+
+\section{References}
+\authorprompt{complete primary citations for interferometry, Abel/Pretzler inversion, spline algorithms, detector data, and software}
+\begin{thebibliography}{9}
+\bibitem{placeholder-model} \textit{Author to insert the original physical-model references.}
+\bibitem{placeholder-inversion} \textit{Author to insert the Abel/Pretzler and smoothing references.}
+\bibitem{placeholder-detector} \textit{Author to insert the exact detector datasheet revision and data provenance.}
+\bibitem{placeholder-software} \textit{Author to insert Python, CFFI, NumPy, SciPy, and Matplotlib citations.}
+\end{thebibliography}
+\end{document}
