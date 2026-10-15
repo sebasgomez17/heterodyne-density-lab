@@ -1,5 +1,6 @@
 include README.md LICENSE version.txt CHANGELOG.md poetry.lock poetry.toml
 include pyproject.toml
+include documentation/main.pdf documentation/validation_data.json
 include build_ffi.py setup.py
 recursive-include csrc *.c *.h *.md
 recursive-include config *.py *.md

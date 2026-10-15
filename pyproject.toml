@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "heterodyne-density-lab"
 version = "0.1.0"
-description = "Python/C scaffold for heterodyne interferometer density reconstruction and design studies"
+description = "Finite-area heterodyne interferometer simulation and Abel density reconstruction with C kernels"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 license = "MIT"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [{name = "sebasgomez17"}]
 keywords = ["heterodyne", "interferometry", "plasma", "Abel inversion", "density reconstruction"]
 classifiers = [
-  "Development Status :: 1 - Planning",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Physics",
   "Programming Language :: Python :: 3.12",
@@ -30,6 +30,7 @@ dependencies = [
   "cffi>=2.0,<3",
   "setuptools>=77,<83",
   "wheel>=0.45,<1",
+  "threadpoolctl (>=3.6,<4)",
 ]
 
 [project.urls]

@@ -1,27 +1,18 @@
-# Editable Python configurations — author implementation pending
+# Editable Python configuration
 
-Write `default_design.py` and `study_config.py` here. They should return a fresh
-validated configuration, using dictionaries or dataclasses. The run scripts
-load these files by absolute path from the repository; users edit them directly.
-The loader belongs in the installed package. No user CLI/configuration framework
-is required.
+`default_design.py` returns a fresh `DesignConfig`; edit its factory for persistent
+single-design changes. `study_config.py` returns a fresh `StudyConfig` and defines
+shared detector layouts, tuning candidates/training profiles, seeds/sample counts,
+and sweeps. The full default schema is in `configuration.py` and the scientific
+manual. All lengths are meters, powers watts, density m^-3, frequency/ENBW hertz.
 
-Keep these groups explicit: plasma, probe/reference beams, port, signed imaging,
-optical wavelength, heterodyne settings, sensor selection/centering/illumination,
-detector specifications/linearity, reconstruction weights, noise/Monte Carlo,
-Pretzler basis/rank limits, spline parameters, numerical grids, plotting/export.
-Use meters, m^-3, watts, hertz, and a documented optical-radius convention.
-User-facing physical detector IDs are 1-based; internal indices can be 0-based.
+Active detector selections use physical IDs 1..N (or a full boolean mask). The
+study's `basis_design_index` is a normal zero-based Python list index. Defaults
+follow the supplied source, including 50 mW optical power, all 16 elements, and
+one baseline realization; former main-script overrides are optional examples.
 
-The study file defines all detector layouts, training profiles, candidate
-Nupper/alpha values, fixed global tuning, seeds, sample counts, sweeps, and output
-settings. Preserve the nine source layouts and all four studies. Configuration
-filenames/fields are a proposed interface until the author implements them.
-
-Decide explicitly whether to adopt the supplied source's 50 mW default or a
-new baseline. The old README's 1 mW description differs from the source. Main
-script overrides should become a named example, not undocumented defaults.
-
-Output defaults should resolve to the repository's `output/` folder. Exports
-for the LaTeX document are deliberate, separate operations. Save a serializable
-configuration snapshot beside every scientific run's outputs.
+Do not change physics inside a study run script. The optional `--quick` switch
+is a labeled installation-check preset, recorded in saved configuration JSON.
+Every run creates its output directory and saves its configuration/environment.
+Set `cfg.plots.show=True` for interactive figures; the default is saving PDFs
+without opening windows. Set figure_format to png/svg if preferred.

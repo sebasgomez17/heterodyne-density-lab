@@ -1,0 +1,84 @@
+name: Scientific tests and native installs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numerical-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+        platform:
+          - runner: ubuntu-24.04
+            architecture: x64
+          - runner: ubuntu-24.04-arm
+            architecture: arm64
+          - runner: macos-15-intel
+            architecture: x64
+          - runner: macos-14
+            architecture: arm64
+          - runner: windows-2025
+            architecture: x64
+            msvc_arch: amd64
+          - runner: windows-11-arm
+            architecture: arm64
+            msvc_arch: amd64_arm64
+    runs-on: ${{ matrix.platform.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: ${{ matrix.platform.architecture }}
+      - name: Prepare MSVC target
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.platform.msvc_arch }}
+      - name: Prepare Linux headers/compiler
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libffi-dev pkg-config
+          echo 'CC=gcc' >> "$GITHUB_ENV"
+      - name: Install Poetry and locked environment
+        shell: python
+        run: |
+          import subprocess, sys
+          commands = [
+              [sys.executable, '-m', 'pip', 'install', 'poetry==2.5.1'],
+              ['poetry', 'env', 'use', sys.executable],
+              ['poetry', 'install', '--with', 'dev'],
+              ['poetry', 'run', 'python', '-m', 'pip', 'install', '--no-deps', '--force-reinstall', '--no-build-isolation', '-e', '.'],
+              ['poetry', 'check', '--lock'],
+          ]
+          for command in commands:
+              subprocess.run(command, check=True)
+      - name: Verify native module and numerical tests
+        shell: python
+        run: |
+          import subprocess
+          subprocess.run(['poetry', 'run', 'python', '-c', 'import platform; from heterodyne_density_lab._core import ffi, lib; print(platform.machine())'], check=True)
+          subprocess.run(['poetry', 'run', 'pytest', '-q'], check=True)
+      - name: Execute all scientific entry points (explicit quick presets)
+        shell: python
+        run: |
+          import subprocess
+          scripts = ['main_density_design', 'study_density_scale_length', 'study_detector_power_tradeoff', 'study_detector_noise_contribution', 'study_pretzler_basis_order']
+          for script in scripts:
+              command = ['poetry', 'run', 'python', 'scripts/' + script + '.py']
+              if script != 'main_density_design':
+                  command.append('--quick')
+              subprocess.run(command, check=True)
+      - name: Build source distribution and native wheel
+        shell: python
+        run: |
+          import subprocess
+          subprocess.run(['poetry', 'run', 'python', '-m', 'build'], check=True)

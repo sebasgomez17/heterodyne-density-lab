@@ -1,10 +1,14 @@
 # Generated scientific outputs
 
-The future run scripts create a directory per run or study here. Save numerical
-CSV tables, figures, configuration snapshots, seeds, version/environment details,
-and relevant warnings. Use filenames with units where appropriate. Do not silently
-overwrite results from another configuration; choose explicit overwrite behavior
-or unique run folders. Ordinary generated outputs are excluded from Git.
+Run scripts create unique UTC-stamped folders here. Single designs save CSV
+profiles/measurement/error tables, JSON configuration/environment/diagnostics,
+NPZ observation/reconstruction arrays, PDF figures, and runtime summaries. Studies
+save CSV sweeps, global tuning JSON/figures, configuration and runtime records.
+The cache/ subfolder contains content-keyed global tuning JSON, without pickle.
 
-No scientific outputs are supplied by the 0.1.0 scaffold. Figures exported for
-publication should be deliberately copied/exported into `documentation/figures/`.
+Outputs and caches are excluded from Git and the source release. Export chosen
+publication figures deliberately into documentation/figures. The scientific
+manual's figures are included as documentation inputs; normal runs do not
+replace them. Nonfinite JSON diagnostics are represented by null, while CSV
+invalid-power result fields use nan. NPZ arrays are numeric and use realizations
+as their first axis; load with numpy.load(..., allow_pickle=False).

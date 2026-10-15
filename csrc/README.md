@@ -1,21 +1,13 @@
-# Portable C sources — author implementation pending
+# C numerical kernels
 
-Write a public API header (suggested `hdl_core.h`) and C source files here.
-Suggested kernel groups: Abel quadrature, detector-area quadrature, batched
-complex phasors, Pretzler basis/forward-matrix integrals, and suitable Monte Carlo
-array operations. Choose boundaries by profiling and numerical validation.
+`hdl_core.c`/`hdl_core.h` implement four allocation-free double-precision routines:
+trapezoidal Abel density integration, all-order Abel basis integration, weighted
+complex phasors, and noisy I/Q demodulation. Python owns contiguous buffers and
+validates finite values/shapes before CFFI calls. Complex values use real/imaginary
+buffers for MSVC portability. The public header documents layouts and status codes.
 
-Use a plain C interface: `double` buffers, explicit sizes, documented units,
-Python-owned memory where possible, and checked integer status returns. Pass
-complex values as separate real/imaginary buffers for consistent MSVC support.
-Avoid implicit ownership, Python callbacks inside loops, C99 VLAs, POSIX-only
-functions, unchecked allocations, and mandatory OpenMP/CUDA dependencies.
-
-The author writes root `build_ffi.py` and `setup.py`. The builder should export
-`ffibuilder`, use out-of-line CFFI API mode, declare the header API, and compile
-`heterodyne_density_lab._core`. Setuptools installs it into the project environment.
-Use compiler-specific flags; link `m` only on platforms requiring it. Generated
-`.so`/`.pyd` binaries are ignored and must be rebuilt per platform/interpreter.
-
-This scaffold has no C source or builder. See the build guide's packaging bridge
-and the installation guides before implementing the interface.
+`build_ffi.py` builds the out-of-line API extension `heterodyne_density_lab._core`
+using setuptools. GCC/Clang builds use -O3 and libm; MSVC uses /O2 and no libm.
+No mandatory OpenMP, CUDA, C++ runtime, native CPU flags, or fast-math is required.
+Rebuild after modifying the header/source/builder using the root README command.
+Compiled binaries are local build products and are excluded from source releases.

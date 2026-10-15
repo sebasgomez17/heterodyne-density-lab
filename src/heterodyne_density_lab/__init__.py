@@ -1,1 +1,1 @@
-"""Heterodyne Density Lab package namespace; numerical implementation pending."""
+"""Finite-area heterodyne interferometry and radial density reconstruction."""

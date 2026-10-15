@@ -3,7 +3,7 @@
 Use standard 64-bit CPython and a matching C compiler target. ARM64 support is a
 project target; it must be validated on Windows ARM64 before being advertised
 as tested. Scientific dependencies have ARM64 wheels, but that alone does not
-validate this project's future extension.
+validate this project's extension.
 
 ## 1. Check architecture and install Python
 
@@ -142,8 +142,7 @@ poetry run python --version
 poetry run python -c "import platform; print(platform.machine())"
 ```
 
-Continue with the root README's full environment checks and, after
-implementation, its script commands. On ARM64, both the project Python and
+Continue with the root README's full environment checks and, its script commands. On ARM64, both the project Python and
 compiled extension must be ARM64. If a dependency starts a lengthy source build,
 check interpreter architecture and wheel availability first; ordinary users
 should not need Fortran, BLAS, or a Matplotlib source-build toolchain.

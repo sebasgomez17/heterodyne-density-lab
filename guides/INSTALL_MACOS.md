@@ -3,8 +3,7 @@
 This recipe targets macOS 14 or newer. A newer supported macOS is preferable;
 the scientific dependencies may require a newer OS than Python itself does.
 Use the native architecture throughout: `arm64` on Apple Silicon and `x86_64`
-on Intel. These are installation instructions for the 0.1.0 scaffold and its
-future Python/C implementation, not a record of completed Mac validation.
+on Intel. These are installation instructions for the 0.1.0 Python/C implementation, not a record of completed Mac validation.
 
 ## 1. Install Python
 
@@ -104,8 +103,7 @@ poetry run python --version
 poetry run python -c "import platform; print(platform.machine())"
 ```
 
-The last line must still show the native architecture. Once C code exists,
-compile/import it through the README workflow. Do not copy an Intel `.so`
+The last line must still show the native architecture. Compile/import it through the README workflow. Do not copy an Intel `.so`
 onto Apple Silicon or reuse an environment created through Rosetta.
 
 If CFFI itself is forced to build from source, it may need libffi and pkg-config.

@@ -1,22 +1,20 @@
-# Run scripts — author implementation pending
+# Individual run scripts
 
-Write these five scripts with the same scientific coverage as their MATLAB
-counterparts. Keep them short and put reusable scientific code in the installed
-`heterodyne_density_lab` package.
+Run from the repository root through `poetry run python scripts/FILE.py`.
 
-| Planned file | Function |
+| Script | Purpose |
 | --- | --- |
-| `main_density_design.py` | Single design and all requested summaries/figures |
-| `study_density_scale_length.py` | Full-radius density and local scale-length errors |
-| `study_detector_power_tradeoff.py` | Fixed-estimator power sweep with invalid powers marked |
-| `study_detector_noise_contribution.py` | Separate noiseless/weighting/noise effects |
-| `study_pretzler_basis_order.py` | Basis, rank, and condition-number diagnostic |
+| main_density_design.py | Single design, geometry/reconstruction/noise figures and tables |
+| study_density_scale_length.py | Density and local scale-length error versus profile scale |
+| study_detector_power_tradeoff.py | Fixed-estimator power sweep, operating window, inadmissible NaNs |
+| study_detector_noise_contribution.py | Fixed-estimator deterministic weighting and stochastic noise effects |
+| study_pretzler_basis_order.py | Fixed-alpha order, rank, and conditioning diagnostic |
+| benchmark_kernels.py | Optional local C-versus-NumPy quadrature timing/accuracy check |
 
-Users will run `poetry run python scripts/FILE.py` from the repository root.
-Load editable configurations by repository-relative absolute paths; script-by-
-path execution does not guarantee that the root is importable. Use an installed
-shared configuration loader and `Path(__file__)` as described in the build guide.
-Use a main guard, print meaningful progress, create output folders automatically,
-and save configurations/units/version/seeds with results. Avoid silent overrides.
-
-The files above are not supplied in 0.1.0; the author will write and comment them.
+The five scientific scripts are thin entry points to one shared runner. Editable
+files are loaded by absolute repository-relative paths, with no sys.path edits.
+Each scientific script accepts --quick for a labeled reduced check and
+--refresh-tuning to recompute a matching global tuning cache. Normal runs use the
+original source's scientific grids/sample counts. Unique run folders prevent
+silent overwrite; seeds, configuration, software versions, results and timings
+are saved. Results/figures are generated locally, not published automatically.

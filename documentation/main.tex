@@ -1,345 +1,686 @@
 \documentclass[11pt,letterpaper]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{booktabs}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
 \usepackage[hidelinks]{hyperref}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{3em}
 \setcounter{tocdepth}{2}
-
-% Original author-fillable outline. No scientific content has been translated.
-% Replace each prompt, caption, and bibliography placeholder before publication.
-\newcommand{\authorprompt}[1]{\textit{Author to fill in: #1.}\par}
-\newcommand{\figureslot}[3]{%
-  \begin{figure}[tbp]
-    \centering
-    \IfFileExists{figures/#1.pdf}{%
-      \includegraphics[width=0.88\linewidth,height=0.30\textheight,keepaspectratio]{figures/#1.pdf}%
-    }{%
-      \fbox{\parbox[c][1.05in][c]{0.86\linewidth}{\centering
-        Figure placeholder\\[5pt]\texttt{\detokenize{figures/#1.pdf}}}}%
-    }
-    \caption{#3. Author to supply the figure and final caption.}
-    \label{#2}
-  \end{figure}%
-}
-
-\title{Heterodyne Density Lab\\\large Scientific Model and Software Reference}
-\author{\texttt{sebasgomez17}\\\small Author name to be finalized}
-\date{Version 0.1.0 outline --- October 12, 2026}
-
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\fig}[3]{\begin{figure}[tbp]\centering
+\includegraphics[width=.98\linewidth,height=.58\textheight,keepaspectratio]{figures/#1.pdf}
+\caption{#3}\label{#2}\end{figure}}
+\title{Heterodyne Density Lab\\\large Scientific Model, Numerical Methods, and Software Reference}
+\author{\texttt{sebasgomez17}}
+\date{Version 0.1.0 --- October 12, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
-\authorprompt{the physical problem, model, algorithms, validation, and software purpose}
+Heterodyne Density Lab models a one-dimensional photodiode-array interferometer
+for a cylindrically symmetric plasma. A finite-support density profile is Abel
+integrated, converted to optical phase, coherently averaged over finite detector
+areas, and measured using an ideal calibrated heterodyne I/Q chain. Detector and
+shot noise are added to the quadratures before phase recovery. A rank-protected
+Pretzler basis with tempered detector weighting reconstructs the radial density,
+followed by an even penalized cubic B-spline. Separate scripts perform baseline
+simulation, spatial-resolution, power, noise-decomposition, and basis-order
+studies. One global estimator is trained per detector layout and held fixed
+through physical sweeps. Portable CFFI kernels accelerate quadrature and phase
+operations; Python manages configuration, optimized linear algebra, statistics,
+and output. This manual describes the implemented mathematics, deliberate
+consolidations from the original MATLAB package, validation, and limitations.
 \end{abstract}
-\textbf{Document status:} This is an outline for the author to complete.
-The associated version 0.1.0 repository is a scaffold, not an implemented
-or validated scientific package.
 \tableofcontents
 \listoffigures
 \clearpage
 
-\section{Project scope and scientific objectives}
-\subsection{Intended diagnostic and research questions}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Supported inputs, outputs, and assumptions}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Relationship to the original MATLAB implementation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\section{Purpose, scope, and relationship to the original package}
+The package is a synthetic diagnostic-design tool, not a general tomography
+solver or a wave-propagation simulation. The physical measurement model follows
+the supplied MATLAB package and its scientific documentation: the observable
+is phase recovered from a finite-area heterodyne phasor, rather than an arbitrary
+noisy chord integral. The original MATLAB repository remains separate.
 
-\section{Software installation and user workflow}
-\subsection{Supported operating systems and architectures}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Python, Poetry, and compiler selection}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Editable configurations and five script entry points}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Output locations and reproducibility records}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+The open implementation preserves the transformed trapezoidal Abel rule,
+finite-area quadrature, detector tables and ideal I/Q gains, constant/cosine
+Pretzler basis, tempered weighting, global estimator training, and all four
+study types. It uses one shared forward engine and one shared reconstruction
+engine rather than one compatibility wrapper for every old file.
 
-\section{Coordinates, units, and plasma profiles}
-\subsection{Coordinate and sign conventions}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Density parameterization and bounded support}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Profile families and training ensembles}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{density_profiles}{fig:density-profiles}{Density profiles and profile parameters}
+The source MATLAB package offered proprietary-toolbox and open penalized-spline
+paths. This release makes the latter canonical. It does not claim numerical
+identity to MATLAB's toolbox smoothing-spline auto-selection. NumPy PCG64
+replaces MATLAB's random generator; equal integer seeds do not give equal
+cross-language normal variates. These are explicit implementation choices,
+not hidden physical-model changes.
 
-\section{Forward line integration}
-\subsection{Abel geometry and mathematical definition}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Quadrature substitution and endpoint behavior}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Batching, tolerances, and convergence}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\section{Installation, execution, and reproducibility}
+\subsection{Environment and build}
+The repository README and three installation guides provide fresh-system
+instructions for standard 64-bit CPython 3.12/3.13, Poetry 2.x, and a native C
+compiler. Use Clang on macOS, GCC on Linux, and MSVC on Windows. Python, the
+compiler target, and the generated extension must have matching architectures.
+A Poetry virtual environment is a Python environment, not an operating-system VM.
 
-\section{Imaging and detector sampling}
-\subsection{Signed transverse magnification and plane mapping}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Probe and reference beams}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Port clipping and transmitted power}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Finite-area elements and selected-channel layouts}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{imaging_geometry}{fig:geometry}{Object/image geometry, beam, port, and detector elements}
+Poetry installs the locked dependencies and root namespace. The documented
+explicit editable-install command then invokes the setuptools backend and its
+CFFI hook inside that environment. The build declares CFFI separately from the
+runtime dependency because isolated source builds need it too. No MATLAB,
+Anaconda, GPU toolkit, mandatory OpenMP, or C++ application code is required.
 
-\section{Heterodyne observable}
-\subsection{Optical phase from line-integrated density}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Complex cross-field integration over each element}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Vacuum calibration and principal-phase recovery}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Linearized measurement and approximation diagnostics}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{measurement_chain}{fig:measurement-chain}{Measurement and reconstruction pipeline}
+\subsection{Five individual scientific scripts}
+Edit \code{config/default_design.py} and \code{config/study_config.py}, then run
+\begin{verbatim}
+poetry run python scripts/main_density_design.py
+poetry run python scripts/study_density_scale_length.py
+poetry run python scripts/study_detector_power_tradeoff.py
+poetry run python scripts/study_detector_noise_contribution.py
+poetry run python scripts/study_pretzler_basis_order.py
+\end{verbatim}
+Use the repository root as the working directory. A shared loader resolves the
+trusted Python configuration files relative to each script's repository, with
+no per-script path mutation. An explicit \code{--quick} option reduces the study
+preset for installation checks and records that choice; it is not the default
+scientific study. \code{--refresh-tuning} recomputes matching cached training.
 
-\section{Optical power and detector specifications}
-\subsection{Power splitting and overlap normalization}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Built-in detector models and custom specifications}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Typical and conservative parameter cases}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+Runs create unique UTC-stamped directories under \code{output/}. They save
+configuration/environment JSON, CSV results with units, figures, and timing.
+Single designs also save numeric NPZ ensembles. JSON uses \code{null} for
+nonfinite diagnostics; CSV invalid-power entries are \code{nan}. By default,
+figures are saved without a display. Set \code{cfg.plots.show = True} for windows.
+Documentation figures are deliberate exports and are not overwritten by runs.
 
-\section{Detector noise and ideal demodulation}
-\subsection{Carrier current and detector-equivalent noise}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Shot noise and equivalent noise bandwidth}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Ideal I/Q conversion factors}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Monte Carlo quadrature noise}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{High-SNR uncertainty and validity diagnostics}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{detector_noise_budget}{fig:noise-budget}{Detector, quadrature, and phase-noise budget}
+\section{Coordinate convention and plasma density}
+The laser propagates along $z$. The detector row spans $x$ and the long direction
+of an element is $y$. The plasma is symmetric in the $x$--$z$ plane and uniform
+in $y$:
+\begin{equation}r=\sqrt{x^2+z^2}.
+\end{equation}
+All lengths are meters, densities $\mathrm{m}^{-3}$, powers watts, and frequencies
+hertz. For $0\le r\le R$, the prescribed density is
+\begin{equation}
+n(r)=(n_0-n_b)\exp\left[-\frac{(r/\ell_n)^{n_a}}{n_a}\right]+n_b;
+\qquad n(r)=0\quad (r>R).
+\label{eq:profile}
+\end{equation}
+Here $n_b$ is a profile parameter; it does not impose a reconstruction boundary
+condition or force $n(R)=n_b$. The default values are $R=0.10$ m,
+$n_0=10^{19}$ $\mathrm{m}^{-3}$, $n_b=0$, $\ell_n=0.025$ m, and $n_a=2$.
+The study parameter $\ell_n$ is distinct from the local scale length $L_n(r)$.
+\fig{density_profiles}{fig:profiles}{Representative prescribed profiles used in training and sweeps, with $n_a=2$, $n_b=0$, and common peak density.}
 
-\section{Detector operating-range constraints}
-\subsection{Peak-cycle power on physical elements}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Bias-dependent typical linearity data}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Sensitivity criterion and safety factor}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Invalid powers, rejection, and sweep handling}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{detector_linearity}{fig:linearity}{Typical linearity curves and chosen operating criterion}
+\section{Abel forward transform and quadrature}
+For impact parameter $x$,
+\begin{equation}
+h(x)=2\int_{|x|}^{R}\frac{n(r)r}{\sqrt{r^2-x^2}}\dd r.
+\label{eq:abel}
+\end{equation}
+With $r=\sqrt{x^2+s^2}$, the endpoint singularity disappears:
+\begin{equation}
+h(x)=2\int_0^{\sqrt{R^2-x^2}} n(\sqrt{x^2+s^2})\dd s,
+\qquad h(x)=0\quad (|x|\ge R).
+\end{equation}
+For $N_q$ nodes, let $t_k=k/(N_q-1)$ and $s_k=s_{\max}t_k$. The source's
+trapezoidal rule is retained,
+\begin{equation}
+h(x)\simeq\frac{2s_{\max}}{N_q-1}\sum_{k=0}^{N_q-1}w_k
+n(\sqrt{x^2+s_k^2}),\qquad
+w_0=w_{N_q-1}=\tfrac12,
+\end{equation}
+with other $w_k=1$. The default is 1000 nodes. The C kernel streams through nodes
+without allocating a radius-by-node matrix. For $n_a=2$, the exponent can be
+computed from $x^2+s^2$ directly, avoiding a square root in the density exponent.
 
-\section{Pretzler reconstruction}
-\subsection{Basis definitions and normalization}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Finite-area forward matrix}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Rank limiting and conditioning}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{OLS, tempered weighting, and WLS}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Numerically stable solves and evaluation grids}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+The finite-radius Gaussian has an analytic reference for $n_b=0$, $n_a=2$:
+\begin{equation}
+h(x)=n_0 e^{-x^2/(2\ell_n^2)}\sqrt{2\pi}\ell_n
+\operatorname{erf}\left(\frac{\sqrt{R^2-x^2}}{\sqrt{2}\ell_n}\right).
+\label{eq:gaussian-abel}
+\end{equation}
+This and the constant-profile expression $h=2n_0\sqrt{R^2-x^2}$ test the kernel
+independently of the inverse problem.
 
-\section{Symmetry-constrained smoothing}
-\subsection{Even coordinate and duplicate radii}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Penalized cubic B-spline reference algorithm}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Open smoothing-spline alternative and parameter equivalence}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Automatic regularization and optional clipping}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{spline_comparison}{fig:splines}{Pretzler and symmetric spline reconstruction comparison}
+\section{Imaging, beams, aperture, and finite detectors}
+\subsection{Signed magnification and detector geometry}
+A signed magnification maps $x_I=Mx_O$, $y_I=My_O$. Detector quadrature is in
+the image plane; beam/aperture functions use $x_O=x_I/M$, $y_O=y_I/M$.
+$M$ must be finite and nonzero. Both signs are supported.
 
-\section{Error metrics and uncertainty summaries}
-\subsection{Pointwise and full-radius density errors}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Sampled-range versus full-radius metrics}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Local density-scale-length definition}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Bounded scale-length error and singular cases}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Monte Carlo distributions and confidence summaries}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\begin{table}[tbp]\centering
+\caption{Built-in one-row detector geometry, following the source model and manufacturer specifications.}
+\begin{tabular}{lrrr}\toprule
+Model & Elements & Active size [mm] & Pitch [mm]\\\midrule
+G12430-016D & 16 & $0.45\times1.00$ & 0.50\\
+G12430-032D & 32 & $0.20\times1.00$ & 0.25\\
+G12430-046D & 46 & $0.20\times1.00$ & 0.25\\\bottomrule
+\end{tabular}\end{table}
+Custom geometry requires element count, active width/height, pitch, and image
+center. Pitch cannot be smaller than active width. User selections and table
+IDs are physical indices $1,\ldots,N_e$; internal NumPy indices are zero-based.
 
-\section{Global estimator selection}
-\subsection{Shared measurement ensembles across candidates}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Training profiles and aggregation metric}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Joint basis-order and weighting selection}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Fixed-estimator use in physical sweeps}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{global_tuning}{fig:tuning}{Global joint hyperparameter selection}
+\subsection{Probe/reference shape and port normalization}
+The unblocked Gaussian intensity shape is
+\begin{equation}
+G_P=\exp\left[-2\frac{(x_O-x_P)^2+(y_O-y_P)^2}{w_P^2}\right].
+\end{equation}
+$w_P$ is the field $1/e$ radius, equivalently the intensity $1/e^2$ radius.
+A circular port has mask $A=1$ inside its radius and zero outside.
+The transmitted probe shape is $S_P=G_PA$. A matched reference uses
+$S_R=S_P$; \code{unclipped_gaussian} uses an independent Gaussian without
+that port mask. Reference waist and center can differ in the latter mode.
 
-\section{Design studies}
-\subsection{Common detector layouts and study configuration}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Density-scale-length sweep}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+Total shape integrals in the image plane are $T_P=|M|^2\int S_P\dd A_O$ and
+$T_R=|M|^2\int S_R\dd A_O$. A centered Gaussian port integral is evaluated
+analytically; for an offset port the source's polar quadrature is retained,
+with at least 80 radial Gauss nodes and 256 uniform angular nodes. An unclipped
+Gaussian has total $\pi w_R^2/2$ in object coordinates.
+
+\subsection{Finite-area quadrature and exact transverse reduction}
+Tensor Gauss--Legendre quadrature uses the default 20 nodes per direction on
+each physical rectangular element. Let $a_{jkl}$ be the image-plane area weight
+and $S_{P,jkl}$, $S_{R,jkl}$ the beam shapes. The cross weight is
+\begin{equation}c_{jkl}=a_{jkl}\sqrt{S_{P,jkl}S_{R,jkl}}.
+\end{equation}
+The element fractions are
+\begin{equation}
+\eta_{P,j}=\frac{\sum a_{jkl}S_{P,jkl}}{T_P},\quad
+\eta_{R,j}=\frac{\sum a_{jkl}S_{R,jkl}}{T_R},\quad
+\eta_{X,j}=\frac{\sum c_{jkl}}{\sqrt{T_PT_R}}.
+\end{equation}
+The effective signed coordinate is the cross-weight centroid.
+Elements are retained when selected, passing the probe transmission threshold
+(default 0.05), and above the source's relative numerical cross-weight floor.
+
+Because phase depends only on $x_O$, define $v_{jk}=\sum_l c_{jkl}$.
+Then $\sum_{kl}c_{jkl}e^{i\phi(x_{jk})}=\sum_kv_{jk}e^{i\phi(x_{jk})}$ exactly
+on the same quadrature rule. This removes repeated $y$ work without changing
+aperture clipping, reference mismatch, or the finite-area observable. Absolute
+transverse nodes are then deduplicated across elements. The MATLAB source
+already deduplicated within each element; the improvement extends that reuse.
+\fig{imaging_geometry}{fig:geometry}{Default object/image geometry. Solid detector rectangles show selected physical elements, the gray circle the port, and the dashed circle the probe waist. Ideal imaging is assumed.}
+
+\section{Finite-area heterodyne phase measurement}
+The optical phase associated with the chord integral is
+\begin{equation}\phi(x)=-r_e\lambda h(x),\qquad
+r_e=2.8179403262\times10^{-15}\ \mathrm{m}.
+\end{equation}
+The plasma and vacuum cross phasors are
+\begin{equation}
+Z_{p,j}=\int_{D_j}\sqrt{S_PS_R}\,e^{i\phi}\dd A_I,
+\qquad Z_{0,j}=\int_{D_j}\sqrt{S_PS_R}\dd A_I.
+\end{equation}
+The ideal calibration gives
+\begin{equation}
+\Delta\phi_j=\arg(Z_{p,j}Z_{0,j}^*),\qquad
+h_j^{(\phi)}=-\frac{\Delta\phi_j}{r_e\lambda}.
+\label{eq:measured}
+\end{equation}
+The vacuum phasor is real and nonnegative because this model has no static
+wavefront phase. Phase recovery returns the principal value without unwrapping. Zero-overlap channels have no defined measurement and are excluded.
+
+For weak phase,
+\begin{equation}
+h_j^{(\mathrm{lin})}=\frac{\int_{D_j}\sqrt{S_PS_R}h\dd A_I}{Z_{0,j}}
+\end{equation}
+approximates Eq.~\eqref{eq:measured}. Both are returned with their difference.
+The coherence $\gamma_j=|Z_{p,j}|/Z_{0,j}$ diagnoses within-element cancellation.
+A large difference between exact phase and the linearized average indicates
+model mismatch for the linear inverse problem, even when the synthetic forward
+phasor remains well-defined.
+\fig{measurement_chain}{fig:chain}{Implemented calculation sequence. Every study calls the same forward and reconstruction engines.}
+
+\section{Absolute optical power, detector data, and noise}
+\subsection{Power split and carrier}
+Let $P$ be the combined full detector-plane beam power, not merely the power
+intercepted by the array. With probe fraction $f$ (default $1/2$),
+$P_{P,\mathrm{tot}}=fP$ and $P_{R,\mathrm{tot}}=(1-f)P$.
+Element powers are $P_{P,j}=fP\eta_{P,j}$ and
+$P_{R,j}=(1-f)P\eta_{R,j}$. Responsivity $\mathcal R$ gives
+$I_{\mathrm{DC},j}=\mathcal R(P_{P,j}+P_{R,j})$.
+For $\zeta_j=Z_{p,j}/\sqrt{T_PT_R}$, the complex IF current is
+\begin{equation}C_j^{\mathrm{IF}}=2\mathcal R P\sqrt{f(1-f)}\,\zeta_j.
+\end{equation}
+The inherited ideal demodulator convention is
+\begin{equation}C_j=\frac{\sqrt{2}}{\pi}C_j^{\mathrm{IF}}.
+\label{eq:carrier}
+\end{equation}
+It changes the I/Q amplitude, not the carrier phase. The physical motivation for
+ideal heterodyne detection and quadrature extraction is discussed by
+Davis~\cite{davis}; this implementation intentionally follows the normalization
+specified in the supplied package.
+
+\subsection{Detector specifications}
+Typical 1.55 $\mu$m responsivity is 0.95 A/W (conservative: 0.85).
+The 16-element model uses typical/conservative NEP $2/4\times10^{-14}$
+$\mathrm{W}/\sqrt{\mathrm{Hz}}$ and cutoff 30/15 MHz. The 32/46-element models
+use NEP $1/3\times10^{-14}$ and cutoff 60/25 MHz. Dark current, capacitance,
+and shunt resistance are retained as specifications, but are not independently
+added as noise contributions on top of the detector-equivalent NEP.
+These values follow the supplied model and the manufacturer's data~\cite{hamamatsu}.
+
+Custom detectors require positive responsivity, NEP, and cutoff, with optional
+additional fields and a linearity limit. Wavelength-dependent response is not
+interpolated from a graph; built-in responsivity/NEP remain peak-wavelength
+approximations. A request outside the 0.9--1.7 $\mu$m range triggers a warning.
+The cutoff is diagnostic only, with the stated datasheet test conditions, not
+a complete TIA/RF transfer function.
+
+\subsection{Noise ASD and quadrature samples}
+The input current-noise ASD is
+\begin{equation}
+i_{n,j}=\sqrt{(\mathcal R\,\mathrm{NEP})^2+2eI_{\mathrm{DC},j}},
+\end{equation}
+with the shot term omitted when configured. Each real baseband quadrature has
+ASD $(2/\pi)i_{n,j}$ and standard deviation
+\begin{equation}\sigma_{i,j}=\frac{2}{\pi}i_{n,j}\sqrt{B},
+\end{equation}
+where $B$ is post-demodulation ENBW (default 1 MHz). Independent normal samples give
+\begin{equation}
+I_j=\Re C_j+\sigma_{i,j}\xi_{I,j},\quad
+Q_j=\Im C_j+\sigma_{i,j}\xi_{Q,j},\quad
+h_j=-\frac{\operatorname{atan2}(Q_j,I_j)}{r_e\lambda}.
+\end{equation}
+The high-SNR diagnostics are
+\begin{equation}
+\sigma_{\phi,j}\simeq\frac{\sigma_{i,j}}{|C_j|},\qquad
+\sigma_{h,j}=\frac{\sigma_{\phi,j}}{r_e\lambda},\qquad
+\mathrm{SNR}_{C,j}=|C_j|/\sigma_{i,j}.
+\end{equation}
+They supply detector weights but do not replace the noisy I/Q generator. The
+preferred carrier SNR is 5; low-SNR and IF-plus-ENBW/cutoff warnings preserve the
+limits of this analytic approximation.
+\fig{detector_noise_budget}{fig:noise}{Baseline peak power, carrier SNR, detector/shot baseband ASD, and analytic phase uncertainty. These are engineering-model diagnostics, not receiver calibration measurements.}
+
+\section{Typical-linearity constraint and admissible power}
+Peak instantaneous heterodyne-cycle element power is conservatively evaluated
+using the vacuum overlap:
+\begin{equation}
+P_{\mathrm{peak},j}=P\left[f\eta_{P,j}+(1-f)\eta_{R,j}
++2\sqrt{f(1-f)}\eta_{X,j}\right]\equiv Pa_j.
+\end{equation}
+The source's approximate digitizations of typical relative-sensitivity curves
+at 0/1 V are preserved. The default criterion is 99\% sensitivity at 1 V.
+A safety factor in $(0,1]$ scales the per-element allowable power $P_L$.
+No interpolation beyond the digitized graph is used. Plateau values are
+collapsed using their highest-power point when inverting sensitivity to power.
+The combined beam-power ceiling is
+\begin{equation}P_{\max}=\min_{j:a_j>0}P_L/a_j.
+\end{equation}
+The constraint covers every illuminated physical element, including unselected
+channels. It is enforced even in noiseless diagnostic mode. The default geometry
+gives about 0.05169 W allowable total power; the 0.05 W source baseline is close
+to this configured boundary. The power study retains rows beyond the boundary
+but marks them invalid and leaves reconstruction errors as NaN.
+
+The curves are typical operating estimates, not guaranteed damage thresholds.
+The manufacturer's spot/bias conditions differ from an arbitrary Gaussian
+footprint and receiver. Receiver amplifier, mixer, TIA, and ADC saturation are
+not included. Figure~\ref{fig:linearity} plots the inherited numeric digitizations;
+it does not reproduce manufacturer artwork.
+\fig{detector_linearity}{fig:linearity}{Approximate typical sensitivity curves used by the model. The 32/46-element models share the same digitization. The horizontal dashed line is the default criterion.}
+
+\section{Pretzler inversion and tempered detector weighting}
+\subsection{Basis and finite-area matrix}
+The derivative-free basis follows the supplied Pretzler implementation~\cite{pretzler}:
+\begin{equation}
+F_0(r)=1,\qquad F_n(r)=1-(-1)^n\cos(n\pi r/R),\quad n\ge1.
+\end{equation}
+The estimated profile is $n(r)=\sum_b A_bF_b(r)$ using the configured lower/upper
+orders and optional constant. Each basis is Abel integrated with the same
+transformed trapezoidal rule. The inverse matrix is
+\begin{equation}
+K_{jb}=\sum_k\frac{v_{jk}}{\sum_kv_{jk}}\,\mathcal A[F_b](x_{jk}),
+\label{eq:K}
+\end{equation}
+for retained channels. Its rows represent the \emph{linearized} cross-weighted
+finite-area observable, even though the simulation supplies exact phase-derived
+measurements. No nonlinear inverse problem is introduced in this release.
+
+A maximum-order basis bank is cached per radius and quadrature resolution.
+Constant-basis line integrals are exact chord lengths. Higher cosines use a
+recurrence with one initial cosine per integration node. Lower-order candidates
+select leading columns instead of regenerating optics or basis integrals.
+
+\subsection{Rank protection and stable solve}
+If coefficients outnumber retained measurements, or a leading-column matrix is
+rank deficient, the largest full-rank leading prefix is selected when rank
+limiting is enabled. Otherwise a clear error is raised. No extra basis functions
+are added automatically because more measurements exist. Symmetric arrays may
+have many physical channels but fewer independent radial observations.
+Requested/used order, rank reduction, rank, and condition numbers are returned.
+
+For detector-derived uncertainties, normalized row factors are
+\begin{equation}
+d_j=(\sigma_{h,j}/\operatorname{median}\sigma_h)^{-\alpha},\qquad 0\le\alpha\le1.
+\end{equation}
+The solve minimizes
+\begin{equation}\|D(KA-h)\|_2^2,\qquad D=\operatorname{diag}(d_j).
+\end{equation}
+Thus $\alpha=0$ is OLS and $\alpha=1$ full inverse-variance WLS. A small SVD-based
+least-squares operator is computed once per candidate and applied to all
+realizations. This changes neither the least-squares objective nor the trained
+weight exponent. A matrix can be full rank yet poorly conditioned; warnings
+begin at the configurable default $10^6$.
+
+\section{Symmetric penalized cubic B-spline}
+The continuous reconstruction fits in
+\begin{equation}u=(|x|/R)^2,
+\end{equation}
+so the resulting radial function is even and has zero central derivative.
+Pretzler values at effective detector positions supply fit points. Additional
+support at $0$ and $\pm R$ comes from the \emph{same Pretzler expansion}, not the
+true profile or a known background value. Opposite-side/duplicate $u$ values
+are merged after rounding to 12 decimals; multiplicities $c_i$ weight the fit.
+The source requires at least four unique effective detector radii before adding
+center/edge support; that guard is preserved.
+
+Let $B$ be an open-uniform cubic basis at the unique $u_i$, $B_w=C^{1/2}B$,
+$y_w=C^{1/2}y$, and $D_2$ the second difference of the coefficient identity matrix.
+For penalty $\lambda_s$, the source fallback solves
+\begin{equation}
+\left(B_w^TB_w+\lambda_s D_2^TD_2+10^{-12}I\right)b=B_w^Ty_w.
+\end{equation}
+The basis count is at most the configured default 10 and the number of unique
+support radii, with a minimum of four. The fixed ridge is retained exactly.
+Scaling $y_w$ by its maximum absolute value protects SI-scale densities and is
+reversed after the solve. Optional nonnegative clipping is off by default.
+
+If no fixed penalty is supplied, 80 logarithmic candidates from $10^{-8}$ to
+$10^4$ are compared by per-realization generalized cross-validation:
+\begin{equation}
+\mathrm{GCV}(\lambda_s)=\frac{\|B_wb-y_w\|^2/N_u}
+{\max(1-\operatorname{tr}H/N_u,\sqrt{\epsilon})^2},\quad
+H=B_w(B_w^TB_w+\lambda_s D_2^TD_2+10^{-12}I)^{-1}B_w^T.
+\end{equation}
+Basis, merge, solve, and hat operators are cached and applied in batches; each
+realization still selects its own minimizing penalty. This is the same algebraic
+objective as the MATLAB open fallback, tested against an independent sample-wise
+implementation. Floating-point reductions need not match bitwise.
+\fig{spline_comparison}{fig:reconstruction}{Default single-design reconstruction and phase-derived chord data. This run contains one noise realization. The vertical line marks the largest effective detector radius; outer-radius behavior is extrapolation through the chosen basis and spline support.}
+
+\section{Error metrics and statistical summaries}
+The full-radius density metric samples a uniform $0\le r\le R$ grid:
+\begin{equation}
+E_n=\frac{\sqrt{\frac1{N_r}\sum_i[n_{\mathrm{rec}}(r_i)-n_{\mathrm{true}}(r_i)]^2}}
+{\max_i n_{\mathrm{true}}(r_i)}.
+\end{equation}
+Point-only and sampled-radius errors are also reported for Pretzler/spline
+profiles; the primary study metric is full-radius spline error.
+
+The local scale length is $L_n=|n/(\dd n/\dd r)|$. Derivatives use centered
+finite differences in the interior and one-sided endpoint differences on the
+uniform grid, matching the source's gradient convention. Gradients below
+$10^{-12}$ of each profile's maximum gradient are treated as zero, giving
+infinite $L_n$. The bounded error is
+\begin{equation}e_L=|L_{n,\mathrm{rec}}-L_{n,\mathrm{true}}|/
+(L_{n,\mathrm{rec}}+L_{n,\mathrm{true}}).
+\end{equation}
+Both-infinite and both-zero lengths receive zero error; one-sided infinity
+receives one. The reported $E_L$ is RMS over $0<r\le R$ and lies in $[0,1]$.
+This convention avoids divergent relative errors near stationary gradients.
+
+Summary statistics include mean, sample standard deviation (zero for one
+realization), median, and linearly interpolated 5th/95th percentiles. A single
+realization is not an uncertainty estimate, even when it is a source default.
+Study CSVs retain standard deviations even where presentation figures omit bars.
+
+\section{Noise modes and globally fixed estimator selection}
+Four modes are supported. \code{detector_limited} adds independent noise to I/Q
+before phase recovery and uses detector-derived weights.
+\code{detector_weighted_noiseless} keeps exact phase with those weights.
+\code{noiseless} uses exact phase with OLS. The legacy \code{relative} mode adds
+multiplicative Gaussian noise directly to line density and uses OLS; it is
+retained as a diagnostic and is not the default physical heterodyne noise model.
+
+Each detector layout is tuned once at the nominal 0.05 W. Training profiles are
+\begin{equation}\ell_n/R\in\{0.10,0.15,0.20,0.25,0.30\}.\end{equation}
+Candidates use upper orders $(2,3,4)$ and $\alpha=0,0.1,\ldots,1$. Default training count is 100 realizations per profile. All candidate
+pairs use one common I/Q ensemble per profile. The aggregate score is the mean
+configured metric across profiles and realizations; default is full-radius
+spline RMS. The selected pair is fixed before physical sweeps.
+
+Tie traversal follows the source's column-major order: lower alpha first, then
+lower order. Rank-protected candidate orders can share the same used prefix.
+An optimum on the upper search boundary triggers a warning. Expanding the search
+range is a conscious scientific choice, not a hidden script override.
+\fig{global_tuning}{fig:tuning}{Training score surface for the baseline 16-element layout. The selected pair is requested upper order 3 and $\alpha=0.2$ for this run. Random-stream and spline choices are part of the estimator definition.}
+
+\section{Central detector layouts and design studies}
+\subsection{Source layout coverage}
+All nine supplied layouts use G12430-016D, $M=0.057$, and zero image center:
+\begin{center}\small
+\begin{tabular}{p{2.5in}p{3.2in}}\toprule
+Layout & Physical element IDs\\\midrule
+16 elements & 1--16\\
+8, full coverage & 1,3,5,7,9,11,13,15\\
+8, gradient paired & 5,6,7,8,9,10,11,12\\
+6, broad coverage & 3,5,7,9,11,13\\
+6, inner gradient paired & 5,6,7,8,9,10\\
+5, inner-mid coverage & 5,7,9,11,13\\
+5, gradient plus outer & 3,5,7,11,13\\
+4, gradient band & 5,7,11,13\\
+4, inner gradient & 5,7,9,11\\\bottomrule
+\end{tabular}\end{center}
+Other built-in/custom detectors can be substituted explicitly in study
+configuration. Changing selected channels never removes physical-element
+power constraints.
+
+\subsection{Spatial-resolution study}
+Nine $\ell_n/R$ values span 0.10--0.30, with 1000 realizations per layout/profile.
+Density and bounded local-scale-length errors are recorded. Figures in the run
+output group layouts by digitized-channel count. The manual shows three
+representative layouts for readable comparisons; the CSV contains all nine.
+\fig{study_scale_length}{fig:scale}{Full-radius density RMS for three source layouts; shaded bands show one sample standard deviation over 1000 realizations. Each layout uses its globally trained fixed estimator.}
+\fig{study_scale_length_local_error}{fig:local-scale}{Corresponding bounded local-scale-length RMS. The percentage scale represents $100E_L$, not an unbounded relative error in $L_n$.}
+
 \subsection{Optical-power tradeoff}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Noise and deterministic-weighting decomposition}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+The source grid spans $10^{-3}$--$10^{-1}$ W at eight points per decade and
+profiles $\ell_n/R=0.10,0.20,0.30$. The fixed globally tuned estimator is retained.
+Default one-realization curves are accompanied by validity, carrier SNR, and
+linearity utilization. Forward phasors do not depend on total power and are
+reused across this sweep. Inadmissible powers are not reconstructed while
+linearity enforcement is enabled. Disabling enforcement is an explicit user
+choice and validity remains reported.
+\fig{study_power_tradeoff}{fig:power-study}{Baseline 16-element power sweep at the source's one-realization default. Curves stop at the configured typical-linearity operating ceiling. More power cannot cure basis/sampling bias.}
+
+\subsection{Noise and weighting decomposition}
+At each profile, noiseless OLS with fixed order and alpha, detector-weighted
+noiseless, and noisy detector-limited reconstructions are compared. The weighting
+change is $E_{\mathrm{weighted,0}}-E_{\mathrm{OLS,0}}$; the stochastic change is
+$\langle E_{\mathrm{noisy}}\rangle-E_{\mathrm{weighted,0}}$.
+These are changes in nonlinear error metrics, not additive variance components.
+Signed changes may be negative in a realization; default noise count is one.
+\fig{study_noise_contribution}{fig:noise-study}{Fixed-estimator error changes for three representative layouts. The one-realization stochastic panel is diagnostic rather than a robust variance estimate.}
+
 \subsection{Basis-order diagnostic}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{study_scale_length}{fig:scale-length-study}{Primary density-scale-length study}
+The first source layout at $\ell_n/R=0.15$ scans requested orders 2--8 using one
+shared detector-limited ensemble and the globally selected alpha. It reports
+density/scale-length errors, used order, rank, and conditioning. Its best order
+at a single profile is not substituted for the globally trained estimator.
+The diagnostic also records the lowest order within the configured relative
+tolerance (default 1 percent) of its best score in \code{basis_selection.json}.
+\fig{study_basis_order}{fig:basis-study}{Baseline order diagnostic with fixed alpha. High orders expose conditioning and rank limitations; requested order 8 is reduced to an independent prefix for the centered array.}
 
-\section{Study results and interpretation}
-\subsection{Power admissibility and useful detector power}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Noise contribution interpretation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Rank and conditioning interpretation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Sensitivity to configuration choices}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{study_power_tradeoff}{fig:power-study}{Detector-power tradeoff with operating-range constraints}
-\figureslot{study_noise_contribution}{fig:noise-study}{Fixed-estimator noise and weighting decomposition}
-\figureslot{study_basis_order}{fig:basis-study}{Basis-order error, rank, and conditioning diagnostic}
+\section{Configuration and public API reference}
+\subsection{Editable SI configuration}
+\code{DesignConfig} has nested plasma, beam, port, sensor, heterodyne, detector,
+inversion, spline, noise, numerics, and plotting dataclasses. Every factory
+returns fresh mutable objects, so one study condition does not mutate another
+run's baseline. Validation rejects invalid sizes, nonfinite parameters, illegal
+power fractions, unsupported models, and inconsistent selections.
 
-\section{Python configuration reference}
-\subsection{Configuration schema and validation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Plasma, optical, geometry, and detector fields}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Inversion, spline, noise, and numerical fields}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Study, plotting, and export controls}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+\begin{center}\small
+\begin{tabular}{p{3.6in}p{2.0in}}\toprule
+Representative field & Default / meaning\\\midrule
+\code{plasma.radius_m} & 0.10 m\\
+\code{plasma.scale_length_m} & 0.025 m\\
+\code{beam.waist_m} & 0.037 m\\
+\code{magnification} & 0.057, signed\\
+\code{heterodyne.wavelength_m} & $1.55\times10^{-6}$ m\\
+\code{heterodyne.total_power_W} & 0.05 W\\
+\code{heterodyne.bandwidth_Hz} & $10^6$ Hz\\
+\code{inversion.upper_order} & 3\\
+\code{inversion.weighting_alpha} & 1\\
+\code{spline.lambda_value} & None: per-sample GCV\\
+\code{noise.realizations / seed} & 1 / 1\\
+\code{noise.batch_size} & 256\\
+\code{numerics.element_order} & 20 per direction\\
+\code{numerics.line_points / radial_points} & 1000 / 1000\\
+\code{plots.show / figure_format} & False / pdf\\\bottomrule
+\end{tabular}\end{center}
+The old README's 1 mW statement differs from the actual source's 50 mW; this
+release follows the source. Former main-script overrides (0.02 m profile,
+channels 5--12, 1000 samples) are optional examples, not hidden defaults.
 
-\begin{table}[tbp]
-\centering
-\caption{Configuration reference template; populate with the implemented schema.}
-\label{tab:configuration}
-\begin{tabular}{llll}
-\toprule
-Field & SI unit & Default & Validation \\
-\midrule
-\textit{To be filled} & \textit{To be filled} & \textit{To be filled} & \textit{To be filled} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\subsection{Library interfaces and array layouts}
+\code{Workspace(cfg)} prepares geometry and bounded keyed caches.
+\code{make_measurements(cfg, workspace, normals)} returns measured ensembles
+without inversion; \code{reconstruct(ensemble, upper_order, alpha)} refits them;
+\code{simulate(cfg, workspace)} composes the two. This separation guarantees
+that candidate comparisons need not redraw noise. \code{retain_profiles=False}
+keeps summaries/errors without full profile ensembles. \code{compute_scale=False}
+skips derivative metrics when a tuning score does not need them.
 
-\section{Python API and result schema}
-\subsection{Configuration loading and factories}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Geometry and optical forward model}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Detector and noise calculations}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Inversion and smoothing API}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Metrics, reuse, and study orchestration}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Plotting and export API}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Result containers and measurement table columns}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+Observations have shape $(N_{\mathrm{mc}},N_{\mathrm{ch}})$, coefficients
+$(N_{\mathrm{mc}},N_b)$, and profiles $(N_{\mathrm{mc}},N_r)$: realizations are
+the first axis. Optional external normals have shape
+$(N_{\mathrm{mc}},2,N_{\mathrm{ch}})$ and require detector-limited mode.
+\code{noise.batch_size} bounds dense reconstruction/spline temporaries.
+A full single-run ensemble intentionally costs $O(N_{\mathrm{mc}}N_r)$ storage;
+metrics-only studies omit those full dense arrays.
 
-\section{C kernels and CFFI interface}
-\subsection{Numerical responsibilities and batching}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Public C header and buffer contracts}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Dtypes, shapes, layout, units, and ownership}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Error returns and invalid inputs}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Out-of-line API module and installation build}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Compiler options and architecture portability}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+The result dictionary contains basis/matrices, requested/used orders, rank and
+conditioning, coefficients, per-sample penalties, truth, sampled grid/positions,
+first/mean/all profiles, per-sample errors, and summaries. The attached ensemble
+retains geometry, measurements, detector data, specs, limits, and I/Q arrays.
+The full measurement CSV preserves selection/masks, image, object, and effective
+coordinates, transmission/power fractions, peak power and linearity, carrier/noise
+ASDs and SNRs, phase/coherence, linearized differences, and first observations.
+Detector diagnostics are computed even for noiseless modes for useful comparison,
+while their solve/noise behavior follows the requested mode.
 
-\section{Reproducibility and performance}
-\subsection{Random streams and common-noise comparisons}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Configuration/version/environment capture}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Memory limits and batching policy}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Benchmark methodology and measured speedups}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{runtime_scaling}{fig:runtime}{Runtime and memory scaling for representative studies}
+\subsection{Modules and extension boundary}
+\begin{description}
+\item[\code{configuration.py}] Configuration schema, validation, and loading.
+\item[\code{model.py}] Geometry, optical forward model, and detector physics.
+\item[\code{reconstruction.py}] Measurement ensembles and density inversion.
+\item[\code{splines.py}] Symmetric penalized spline operators.
+\item[\code{metrics.py}] Density and local scale-length errors.
+\item[\code{studies.py}] Global training and fixed-estimator sweeps.
+\item[\code{outputs.py}] Saved records and content-keyed tuning caches.
+\item[\code{plotting.py}] Shared scientific figures and exports.
+\item[\code{entrypoints.py}] Individual-script orchestration.
+\end{description}
+\code{native.py} validates contiguous float64 arrays and calls the compiled
+\code{_core} module. The four C routines integrate density, integrate basis,
+form phasors, and recover noisy I/Q phase. Python owns all buffers; C allocates
+no persistent memory and returns checked integer status. Complex buffers use
+separate real/imaginary arrays for portable MSVC support.
 
-\section{Validation and convergence}
-\subsection{Reference fixtures from the original repository}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Deterministic numerical equivalence}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Stochastic distributions and tolerances}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Quadrature/grid convergence}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Native platform installation checks}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\figureslot{quadrature_convergence}{fig:convergence}{Numerical convergence and reference agreement}
+\section{Efficiency and benchmark interpretation}
+Geometry, complete-beam normalization, and finite-area weights are constructed
+once per layout. Maximum-order basis integrals are cached; lower orders select
+columns. Profile phasors are keyed by plasma/wavelength/quadrature settings and
+reused across powers and noise modes. The inverse operator and spline matrices
+are prepared once for a given candidate/geometry, then applied to batches.
+The GCV penalty choice remains per realization. C recurrence and streaming avoid
+many trigonometric evaluations and large integration temporaries.
 
-\section{Model limitations and planned extensions}
-\subsection{Optical propagation and aberrations}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Phase wrapping and absolute fringe tracking}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Laser/mechanical noise and nonideal demodulation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Receiver electronics and saturation}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Typical detector-data uncertainty}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Symmetry and spatial-uniformity assumptions}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+Scripts set the BLAS thread limit to one because these inverse systems are
+small; unrestricted thread startup can dominate them. NumPy/SciPy provide
+optimized linear algebra rather than introducing a separate user-built BLAS
+library. Library callers can choose their own threading policy.
 
-\section{Troubleshooting and diagnostic interpretation}
-\subsection{Setup, PATH, compiler, and architecture errors}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Insufficient channels or unique radii}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Ill conditioning and basis reduction}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Low carrier SNR and bandwidth diagnostics}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Linearity violations and unsampled-radius error}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+Separate scripts reuse global tuning through JSON cache keys containing physics,
+optimization settings, package/dependency versions, actual Python-module hashes,
+and the compiled-extension hash. No pickle is loaded. A changed model/build
+invalidates the key. Caches have bounded in-memory sizes; changing geometry
+requires a new Workspace and is checked explicitly.
 
-\section{Versioning, licensing, and citation}
-\subsection{Version 0.1.0 scope and implementation status}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Release/compatibility policy}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{MIT license and third-party notices}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
-\subsection{Scientific and software citation guidance}
-\authorprompt{the definitions, assumptions, implementation choices, and supporting evidence for this topic}
+For 160 unique impacts and 1000 integration nodes on the validation machine,
+median density-kernel times were about 1.15 ms in C versus 2.00 ms in the
+same-rule NumPy reference (1.73 times faster). The order-0--8 basis bank used
+4.94 ms versus 21.55 ms (4.36 times faster). Relative differences were about
+$3\times10^{-15}$. These are local kernel timings, not a MATLAB comparison or
+a guaranteed whole-program speedup. MATLAB runtime was unavailable.
+\fig{runtime_scaling}{fig:runtime}{Median of nine local kernel timing samples after warm-up. Both implementations use the same impact parameters, quadrature rule, and precision.}
+
+\section{Validation and numerical convergence}
+The executed tests cover analytic constant and Gaussian Abel transforms, C versus
+direct cosine and trapezoidal integration, positive/negative magnification, both
+reference modes, full tensor versus reduced phasors, zero/weak/wrapped phases,
+power/noise identities, safety on unselected elements, geometry-cache rejection,
+all sensor/layout models, spline/GCV equivalence, independent weighted solves,
+batch invariance, I/Q statistics, noise modes, rank protection, metric conventions,
+invalid native inputs, and all study workflows. At preparation, 31 tests passed.
+
+All five full scientific scripts executed with the source's default grids and
+sample counts on Linux x86\_64, Python 3.12. The scale-length study took roughly
+8.9 s including uncached tuning and plot/export; power/noise/basis runs reused
+matching training caches and took roughly 3.7/2.8/0.6 s. Concurrent load and
+export affect these numbers; they are execution records, not reproducible
+hardware specifications. Native macOS, Windows, and ARM64 execution remains
+untested, despite documented compiler recipes and compatible dependency wheels.
+
+Increasing Gaussian Abel integration nodes demonstrates the expected smooth
+trapezoidal convergence in Figure~\ref{fig:convergence}. This is one convergence
+check, not a universal accuracy certificate. Port masks are discontinuous;
+increase element quadrature independently to check aperture-edge convergence.
+Also increase basis quadrature, radial resolution, Monte Carlo count, and the
+tuning search range before drawing a diagnostic-design conclusion. Derivative
+metrics are more sensitive than density metrics.
+
+The independent comparisons reproduce the mathematical rules; they do not
+constitute a direct run of the original MATLAB application. A future side-by-side
+comparison should use the open spline path and identical supplied normal arrays,
+or compare distributions with justified statistical tolerances.
+\fig{quadrature_convergence}{fig:convergence}{Maximum absolute Gaussian Abel error normalized by the maximum analytic line density over 31 impacts, including the boundary. Default profile parameters are used.}
+
+\section{Physical limitations and troubleshooting}
+The optical model has ideal signed imaging at one plane, not diffraction,
+aberrations, depth of focus, wavefront curvature, or plasma refraction. It assumes
+cylindrical symmetry and $y$-uniform density. Beam mismatch and finite sampling
+are represented, but no general asymmetric tomography is attempted.
+
+Vacuum calibration and I/Q axes are ideal. No temporal/spatial phase unwrapping,
+absolute fringe tracking, laser/AOM/LO phase noise, vibration, ADC quantization,
+receiver gain imbalance, or electronics saturation is included. Principal phase
+can wrap and finite-area cancellation can reduce the carrier. Large phase
+nonlinearity requires a different inverse model, not more basis coefficients.
+
+Detector NEP and optical shot noise are included; datasheet dark current,
+capacitance, and resistance are not converted into additional independent noise
+without a receiver model. Typical linearity and fixed-wavelength detector data
+need experimental validation for the actual footprint/bias/electronics.
+
+If power is rejected, inspect the critical physical element and peak-cycle
+power, not only selected channels. If four unique detector radii do not remain,
+change geometry/selection/filtering. If conditioning grows, reduce basis order
+or reconsider radial coverage. Outer-radius error can be extrapolation-driven;
+compare sampled and full-radius metrics. Low-SNR I/Q distributions can become
+wrapped/non-Gaussian, making analytic phase uncertainties unreliable.
+
+For build/import errors, verify the selected Poetry Python, compiler PATH and
+target architecture, then rebuild with the README command. Compiled binaries
+cannot be copied between operating systems/interpreters. A failed native import
+is explicit; no silent slow fallback changes the computation.
+
+\section{Versioning, license, and scientific citation}
+The authoritative version is \code{project.version} in \code{pyproject.toml},
+queried through installed metadata. Keep \code{version.txt}, the change history,
+and this manual consistent when releasing. Version 0.1.0 is the first scientific
+Python/C release in a separate series from MATLAB 5.0. The code is MIT licensed;
+dependencies retain their own licenses. Cite the code version/configuration,
+original inversion and measurement literature, and exact detector data used.
 
 \clearpage
-\appendix
-\section{Per-function reference}
-\authorprompt{implemented signatures, units, array shapes, return values, failure modes, and examples for the function groups listed in the migration checklist}
-\subsection{Configuration and study-control helpers}
-\authorprompt{configuration factories, design application, tuning, reuse, and basis sweeps}
-\subsection{Forward-model and detector helpers}
-\authorprompt{profiles, geometry, quadrature, phasors, power, detector specifications, and noise}
-\subsection{Reconstruction, spline, and metric helpers}
-\authorprompt{basis matrices, solvers, smoothing, derivative estimates, and all metrics}
-\subsection{Plotting, style, and export helpers}
-\authorprompt{figure inputs, styles, tables, paths, formats, and export settings}
-
-\section{Native interface reference}
-\authorprompt{each C function and CFFI declaration, including lengths, strides, ownership, precision, and return codes}
-
-\section{Validation fixtures and platform record}
-\authorprompt{reference configurations, tolerances, expected outputs, tested machines, compiler versions, and known differences}
-
-\section{References}
-\authorprompt{complete primary citations for interferometry, Abel/Pretzler inversion, spline algorithms, detector data, and software}
 \begin{thebibliography}{9}
-\bibitem{placeholder-model} \textit{Author to insert the original physical-model references.}
-\bibitem{placeholder-inversion} \textit{Author to insert the Abel/Pretzler and smoothing references.}
-\bibitem{placeholder-detector} \textit{Author to insert the exact detector datasheet revision and data provenance.}
-\bibitem{placeholder-software} \textit{Author to insert Python, CFFI, NumPy, SciPy, and Matplotlib citations.}
+\bibitem{davis} E. M. Davis, \emph{A combined phase contrast imaging and heterodyne interferometer system for multiscale fluctuation measurements on DIII-D}, Ph.D. thesis, MIT, 2018. \url{https://hdl.handle.net/1721.1/115666}.
+\bibitem{hamamatsu} Hamamatsu Photonics K.K., \emph{InGaAs PIN photodiode arrays, G12430 series}, manufacturer datasheet KIRD1124E. \url{https://www.hamamatsu.com/content/dam/hamamatsu-photonics/sites/documents/99_SALES_LIBRARY/ssd/g12430_series_kird1124e.pdf}.
+\bibitem{pretzler} G. Pretzler, ``A New Method for Numerical Abel-Inversion,'' \emph{Zeitschrift f\"ur Naturforschung A} 46, 639--641 (1991). DOI: 10.1515/zna-1991-0715.
+\bibitem{cffi} CFFI project, \emph{Preparing Wrapper Modules} and \emph{Using the ffi/lib Objects}. \url{https://cffi.readthedocs.io/en/stable/}.
+\bibitem{scipy} SciPy project, \emph{BSpline} and \emph{scipy.linalg.lstsq} reference documentation. \url{https://docs.scipy.org/doc/scipy/reference/}.
+\bibitem{source} Original supplied heterodyne density-reconstruction MATLAB source snapshot and documentation, version label 5.0. \url{https://github.com/sebasgomez17/heterodyne_density_reconstruction}.
 \end{thebibliography}
 \end{document}

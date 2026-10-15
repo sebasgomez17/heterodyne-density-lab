@@ -85,8 +85,7 @@ poetry run python -c "import platform; print(platform.machine())"
 ```
 
 Continue with README steps 4–5. The explicit backend installation will compile this project's
-C extension once the author adds its builder and kernels. It currently installs
-the scaffold namespace and dependencies only.
+C extension from the supplied builder and kernels.
 
 ## Other Linux releases or distributions
 

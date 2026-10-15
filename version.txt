@@ -1,12 +1,14 @@
 Heterodyne Density Lab
 Version: 0.1.0
 Date: 2026-10-12
-Status: repository and documentation scaffold; scientific implementation pending
+Status: scientific Python/C implementation and documentation
 Python distribution: heterodyne-density-lab
 Python import: heterodyne_density_lab
 License: MIT
 
-The authoritative package version is project.version in pyproject.toml.
-Keep this summary and CHANGELOG.md consistent with that version.
-This is a new Python/C version series. It does not replace the MATLAB
-repository's 5.0 version or claim a completed numerical translation.
+Authoritative version: project.version in pyproject.toml.
+Independent version series from the original MATLAB 5.0 repository.
+Native execution validated: Linux x86_64, CPython 3.12.
+Other requested native targets have installation guides but remain untested.
+Canonical smoothing algorithm: open penalized cubic B-spline from MATLAB fallback.
+Random generator: NumPy PCG64; cross-language seed identity is not guaranteed.

@@ -986,6 +986,18 @@ files = [
 ]
 
 [[package]]
+name = "threadpoolctl"
+version = "3.7.0"
+description = "threadpoolctl"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "threadpoolctl-3.7.0-py3-none-any.whl", hash = "sha256:cd8b60b5641b45c67bbf73c64c843235fc2d8a480c87389f52f5dbee893b86be"},
+    {file = "threadpoolctl-3.7.0.tar.gz", hash = "sha256:61348cfb77d53b9242e0017029244b559b810c142ced65b4e21eeca1843959a7"},
+]
+
+[[package]]
 name = "wheel"
 version = "0.48.0"
 description = "Command line tool for manipulating wheel files"
@@ -1003,4 +1015,4 @@ packaging = ">=24.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.14"
-content-hash = "f98005460c1d491a8c7e1e9cf8976a88c761bc519e91b98510be82df4b116ad5"
+content-hash = "d9e7dec0a4d6459b75946c47b0a0d92ceadb52c1219556bfb4660eb19b709679"

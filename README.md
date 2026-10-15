@@ -3,20 +3,22 @@
 Python/C project for designing a one-dimensional heterodyne interferometer and
 reconstructing the radial electron density of a cylindrically symmetric plasma.
 The user edits Python configuration files and runs individual Python scripts
-inside a Poetry-managed virtual environment. Computational kernels will be
+inside a Poetry-managed virtual environment. Computational kernels are
 written in C and called from Python through CFFI.
 
-**Version 0.1.0 is a scaffold.** Installation and dependency checks can run now.
-The scientific modules, configuration files, C kernels, CFFI builder, and five
-run scripts are to be written by the author. The scientific run commands below
-are the intended interface once those files exist; they cannot produce results
-in this scaffold. See the [implementation guide](guides/BUILD_FROM_SCRATCH.md).
+**Version 0.1.0 implements the scientific pipeline and all four design studies.**
+The finite-area phase/IQ forward model, detector noise and operating constraints,
+Pretzler inversion, and symmetric penalized B-spline reconstruction follow the
+supplied MATLAB mathematical model. The original MATLAB repository remains
+[separate](https://github.com/sebasgomez17/heterodyne_density_reconstruction).
 
-The original MATLAB implementation remains in
-[heterodyne_density_reconstruction](https://github.com/sebasgomez17/heterodyne_density_reconstruction).
-This repository starts a separate version series at 0.1.0. It includes no MATLAB
-sources and its LaTeX document is an original outline for the author to fill in.
-The proposed repository URL below becomes usable after its owner creates it.
+The canonical open spline is the original package's toolbox-independent
+penalized cubic B-spline. MATLAB's proprietary Curve Fitting Toolbox implementation
+is not duplicated. Random noise uses NumPy PCG64 rather than MATLAB's generator,
+so identical seed integers do not imply identical cross-language realizations.
+These choices are documented in the [scientific manual](documentation/main.tex).
+The distribution has been executed on Linux x86_64; native macOS/Windows and
+ARM64 validation remain required. See [validation results](guides/VALIDATION.md).
 
 ## Requirements and installation choices
 
@@ -30,7 +32,7 @@ The proposed repository URL below becomes usable after its owner creates it.
 | LaTeX | Optional; needed only to build the documentation |
 | Git | Optional for running; useful for cloning and contributing |
 
-The target list is an implementation goal, not a completed validation claim.
+The target list is a portability target, not a completed native validation claim.
 Use a standard GIL-enabled Python build. Free-threaded Python, PyPy, 32-bit
 Python, and mixed Python/compiler architectures are outside this initial scope.
 Ubuntu 24.04 LTS has a complete Linux installation recipe below. Other modern
@@ -45,7 +47,7 @@ not certify their numerical equivalence or every platform's installation.
 A Poetry virtual environment isolates Python packages. It is not an operating
 system VM. No VirtualBox, Windows guest, MATLAB, Anaconda, GPU toolkit, full
 Visual Studio IDE, or Homebrew installation is needed for the primary recipes.
-The implemented release will distribute C source with this project; install
+This release distributes C source with the project; install
 the compiler once and use it to build the extension locally.
 
 ## 1. Install Python and a C compiler on a fresh system
@@ -95,8 +97,8 @@ git clone https://github.com/sebasgomez17/heterodyne-density-lab.git
 cd heterodyne-density-lab
 ```
 
-The URL is a proposed name; until the repository exists, extract the supplied
-scaffold archive and work in its `heterodyne-density-lab` folder.
+Alternatively, extract the supplied release archive and work in its
+`heterodyne-density-lab` folder.
 
 ## 3. Select Python explicitly and install dependencies
 
@@ -138,16 +140,16 @@ For another supported Python installation, pass its full executable path to
 the supported range. `poetry.toml` puts this project's environment in `.venv`.
 The lockfile is supplied: ordinary users do not need `poetry lock` or `poetry add`.
 Poetry downloads the dependency files automatically; users do not download
-NumPy, SciPy, Matplotlib, CFFI, setuptools, or wheel individually.
+NumPy, SciPy, Matplotlib, CFFI, threadpoolctl, setuptools, or wheel individually.
 
 Use normal package mode: Poetry installs the local Python namespace too. Do not
 copy the example project's `--no-root` option here. The second command installs
 the local project through its declared setuptools backend inside the same Poetry
-environment. This explicit backend step is required to compile the future CFFI
+environment. This explicit backend step is required to compile the CFFI
 extension; Poetry's own root editable installation does not run setuptools'
 `cffi_modules` hook. `--no-deps` keeps locked dependencies unchanged, and
 `--no-build-isolation` uses the installed CFFI/setuptools/wheel build requirements.
-The same command currently installs scaffold metadata without C computation.
+The command compiles the portable kernels into the local Python extension.
 
 ## 4. Verify the actual project environment
 
@@ -162,30 +164,23 @@ poetry run python -c "import heterodyne_density_lab; from importlib.metadata imp
 ```
 
 Expect an executable under `.venv`, a matching 64-bit architecture, and package
-version `0.1.0`. The import confirms the namespace/installation only; it does
-not confirm numerical functions exist or the C extension was built.
-
-After the author adds `build_ffi.py`, `setup.py`, and the C sources as described
-in the implementation guide, the explicit backend installation command above
-will compile the extension. Then also
-run:
+version `0.1.0`. Then verify the compiled C extension too:
 
 ```text
 poetry run python -c "from heterodyne_density_lab._core import ffi, lib; print('CFFI extension imported successfully')"
 ```
 
-The `_core` check is intentionally unavailable in the present scaffold. It must
-be required before declaring the implemented Python/C release usable.
+Both namespace and extension checks must pass before running the package.
 
-## 5. Configure and run the scientific scripts (after implementation)
+## 5. Configure and run the scientific scripts
 
-The planned editable files are `config/default_design.py` and
+The editable files are `config/default_design.py` and
 `config/study_config.py`. Start with the default design, then modify physical
 parameters, selected detector elements, seed, numerical resolution, or plotting
 controls. Study settings belong in the shared study configuration. They must
 not be silently changed inside a run script.
 
-| Planned script | Purpose |
+| Script | Purpose |
 | --- | --- |
 | `scripts/main_density_design.py` | Single design, geometry, reconstruction, and noise summaries |
 | `scripts/study_density_scale_length.py` | Primary spatial-resolution study |
@@ -193,7 +188,7 @@ not be silently changed inside a run script.
 | `scripts/study_detector_noise_contribution.py` | Fixed-estimator noise and weighting decomposition |
 | `scripts/study_pretzler_basis_order.py` | Basis-order, rank, and conditioning diagnostic |
 
-Once implemented, use the same commands on every OS:
+Use the same commands on every OS:
 
 ```text
 poetry run python scripts/main_density_design.py
@@ -203,17 +198,32 @@ poetry run python scripts/study_detector_noise_contribution.py
 poetry run python scripts/study_pretzler_basis_order.py
 ```
 
-No manual activation is needed: `poetry run` selects the environment. The planned
-scripts load configuration relative to the repository using `pathlib`; the
-implementation guide describes imports that work when running a script by path.
-They should create their output directories automatically.
+No manual activation is needed: `poetry run` selects the environment. The
+scripts load configuration relative to the repository using `pathlib` and a
+shared file loader. They create their output directories automatically.
 
-The intended output location is `output/`, with a separate folder per run/study.
-Preserve configuration, random seed, package version, and numerical settings
-beside the CSV tables and figures. Export publication figures deliberately into
-`documentation/figures/`; ordinary runs should not overwrite document figures.
-For a display-free Linux session, the author should support saving plots with
-Matplotlib's `Agg` backend and no GUI requirement.
+Outputs go to a unique UTC-stamped directory in `output/` per run/study. Each
+run saves configuration and environment JSON, unit-labeled CSV results, plots,
+and a runtime summary. Single-design runs also save arrays in `ensemble.npz`.
+Array layouts use realizations first; see the API guide. Matplotlib uses `Agg`
+by default, so runs do not require a desktop. Set `cfg.plots.show = True` for
+interactive windows. Default figure output is PDF; PNG/SVG are also supported.
+The default optical power is 50 mW, matching the actual MATLAB source.
+
+For an explicitly reduced installation check, append `--quick` to a study
+command. It changes the training/sweep preset and records that choice; use the
+plain commands above for the original scientific grids/sample counts. All
+configuration details remain in the saved JSON.
+
+Global tuning is cached by physics/configuration, optimization settings, code
+and extension hashes, and dependency versions. Separate study scripts can
+reuse identical training results without rerunning tuning. Use
+`--refresh-tuning` to recompute, or set `study.cache_tuning = False`.
+
+Publication figures are exported deliberately into `documentation/figures/`;
+ordinary runs never overwrite document figures. The included figures were
+generated from the reference configuration; the scientific manual explains
+their interpretation and limitations.
 
 ## Rebuilding, updates, and environment maintenance
 
@@ -223,9 +233,7 @@ After changing C code or CFFI declarations, rebuild from the repository root:
 poetry run python -m pip install --no-deps --force-reinstall --no-build-isolation -e .
 ```
 
-This is the post-implementation rebuild path, not a command that adds C kernels
-to the scaffold. Build requirements are already installed in the Poetry
-environment. It preserves the locked Python dependencies and reinstalls the
+Build requirements are already installed in the Poetry environment. It preserves the locked Python dependencies and reinstalls the
 local extension. Use a compiler-enabled shell on Windows.
 
 After downloading an updated release, read `CHANGELOG.md`, run
@@ -250,17 +258,22 @@ commit both `pyproject.toml` and `poetry.lock`. Do not edit the lockfile manuall
 
 ## Documentation and developer guidance
 
-- [Build from scratch and reproduce every feature](guides/BUILD_FROM_SCRATCH.md)
+- [Implementation and development guide](guides/BUILD_FROM_SCRATCH.md)
+- [Computation steps and efficiency decisions](guides/COMPUTATION_PLAN.md)
 - [Complete MATLAB-to-Python/C mapping](guides/MIGRATION_CHECKLIST.md)
 - [LaTeX structure, figures, and optional installation](documentation/README.md)
 - [Python configuration contract](config/README.md)
 - [Script contract](scripts/README.md)
 - [C interface contract](csrc/README.md)
 - [Validation plan](tests/README.md)
-- [Scaffold checks actually performed](guides/SCAFFOLD_VALIDATION.md)
+- [Validation results and measured benchmarks](guides/VALIDATION.md)
 
 Runtime users do not need LaTeX. Developers can install optional Python tools
-with `poetry install --with dev` once the main setup works.
+with `poetry install --with dev`, run `poetry run pytest`, and build a source
+release with `poetry run python -m build`. For a measured local C-versus-NumPy
+quadrature comparison, run `poetry run python scripts/benchmark_kernels.py`.
+`threadpoolctl` limits BLAS to one thread in scripts because the inverse systems
+are small; the library functions do not impose a global thread limit.
 
 ## Troubleshooting
 
@@ -273,7 +286,7 @@ with `poetry install --with dev` once the main setup works.
 | Linux `Python.h` missing | Install headers for the selected Python, not another version |
 | Extension import gives wrong architecture | Recreate `.venv` and rebuild with matching Python/compiler |
 | Large SciPy/Matplotlib source build starts | Check the lockfile, Python/OS versions, architecture, and wheel availability |
-| `scripts/...` missing or `_core` absent | Scientific implementation is pending in 0.1.0 |
+| `_core` absent | Repeat the explicit backend build and inspect compiler errors |
 | Power rejected by the scientific code | Check per-element peak power against the configured typical-linearity criterion |
 | Too few independent measurements | Inspect selected channels, geometry masks, unique radii, and rank limits |
 

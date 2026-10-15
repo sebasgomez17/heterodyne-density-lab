@@ -1,9 +1,10 @@
-# LaTeX documentation scaffold
+# Scientific LaTeX documentation
 
-`main.tex` is an original document outline for Heterodyne Density Lab. It contains
-structure, headings, author prompts, a configuration table outline, API groupings,
-and labeled figure slots. Scientific prose, equations, references, and results
-are intentionally left for the author. It does not copy the old LaTeX document.
+`main.tex` is the original scientific manual for the implemented Python/C
+package. It contains the physical model, numerical equations, configuration/API,
+study logic, reproducibility/performance records, validation, limitations, and
+primary references. Real figures were generated from the new code using default
+scientific configurations. `main.pdf` is the compiled manual.
 
 ## Runtime versus author requirements
 
@@ -11,7 +12,7 @@ Users running the Python package do not need LaTeX. Install it only if editing
 and building this document. The provided source uses standard `article`,
 `geometry`, `amsmath`, `amssymb`, `graphicx`, `booktabs`, and `hyperref` packages.
 No shell escape, minted, bibliography processor, or Python plotting run is
-required to build the outline.
+required to build the manual.
 
 ## Optional fresh-system LaTeX setup
 
@@ -30,7 +31,7 @@ pdflatex --version
 **Windows:** install [Basic MiKTeX](https://miktex.org/howto/install-miktex) for the
 current user and allow its missing-package installation as appropriate. Reopen
 PowerShell and run `pdflatex --version`. Use the direct PowerShell recipe below;
-there is no need to install GNU Make or Perl just to compile this outline.
+there is no need to install GNU Make or Perl just to compile this manual.
 For Windows ARM64, check TeX distribution availability; an x64 TeX process under
 Windows emulation can build a PDF independently of the native Python/C target.
 
@@ -56,7 +57,7 @@ make
 ```
 
 The Makefile calls `latexmk` with the supplied `latexmkrc`, which places outputs
-in `documentation/build/`. The resulting PDF is `build/main.pdf`.
+in `documentation/build/`. The resulting PDF is `build/main.pdf`, also copied to `main.pdf`.
 
 ```bash
 make clean
@@ -91,15 +92,22 @@ A second run resolves the contents and figure references. Rerun if LaTeX request
 another pass. `latexmk -pdf main.tex` is an alternative if latexmk is installed;
 Perl may be needed for latexmk on Windows. The direct pdflatex recipe avoids that.
 
-## Figure slots
+## Scientific figures and provenance
 
-See [figures/README.md](figures/README.md). Each slot expects a PDF filename and
-has a stable label. If that file is absent, a framed filename placeholder is
-shown, so the outline compiles immediately. Replace each placeholder with your
-own exported figure and write a real caption/interpretation before publication.
-Do not publish the placeholder captions as validated scientific findings.
+See [figures/README.md](figures/README.md). All document figures are provided
+as vector PDFs, with real captions and references in the scientific source.
+They were generated from the default baseline/full study results and analytic
+or same-rule comparisons. The manual identifies panels that show selected
+layouts or only one noise realization. Manufacturer artwork is not included.
+`validation_data.json` retains numeric convergence and benchmark data.
 
-The source uses manual bibliography placeholders to avoid another build tool.
-Replace them with real citations, or deliberately adopt BibTeX/Biber and update
-the build instructions. Keep its displayed document/package version consistent
-with `pyproject.toml`; the outline currently says 0.1.0.
+The direct pdflatex commands generate `build/main.pdf`. After successful builds,
+copy it to `main.pdf` if updating the distributed manual. On Windows PowerShell:
+
+```powershell
+Copy-Item build/main.pdf main.pdf
+```
+
+Normal scientific runs save figures to output/. Export publication figures into
+figures/ deliberately, keeping configuration/seeds and captions consistent.
+The manual uses a manual bibliography, so no BibTeX/Biber setup is required.
